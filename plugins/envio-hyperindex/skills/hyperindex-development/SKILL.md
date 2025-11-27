@@ -57,7 +57,7 @@ Basic structure:
 name: my-indexer
 networks:
   - id: 1  # Ethereum mainnet
-    start_block: 12345678
+    start_block: 0  # HyperSync is fast - start from genesis
     contracts:
       - name: MyContract
         address: 0xContractAddress
@@ -68,11 +68,13 @@ networks:
 
 **Key options:**
 - `address` - Single or array of addresses
-- `start_block` - Block to begin indexing
+- `start_block` - Block to begin indexing. **Use `0` with HyperSync** (default) - it's extremely fast and syncs millions of blocks in minutes. Only specify a later block if using RPC on unsupported networks.
 - `handler` - Path to event handler file
 - `events` - Event signatures to index
 
-**For transaction data access**, add field_selection:
+**For transaction/block data access**, use `field_selection`. By default, `event.transaction` is `{}` (empty).
+
+**Per-event (recommended)** - Only fetch extra fields for events that need them. More fields = more data transfer = slower indexing:
 
 ```yaml
 events:
@@ -80,7 +82,21 @@ events:
     field_selection:
       transaction_fields:
         - hash
+  - event: Approval(address indexed owner, address indexed spender, uint256 value)
+    # No field_selection - this event doesn't need transaction data
 ```
+
+**Global** - Applies to ALL events. Use only when most/all events need the same fields:
+
+```yaml
+field_selection:
+  transaction_fields:
+    - hash
+```
+
+**Available fields:**
+- `transaction_fields`: `hash`, `from`, `to`, `value`, `gasPrice`, `gas`, `input`, `nonce`, `transactionIndex`, `gasUsed`, `status`, etc.
+- `block_fields`: `miner`, `gasLimit`, `gasUsed`, `baseFeePerGas`, `size`, `difficulty`, etc.
 
 **For dynamic contracts** (factory pattern), omit address and use contractRegister.
 
@@ -250,12 +266,12 @@ Index the same contract across multiple chains:
 ```yaml
 networks:
   - id: 1       # Ethereum
-    start_block: 15000000
+    start_block: 0
     contracts:
       - name: MyToken
         address: 0x...
   - id: 137     # Polygon
-    start_block: 40000000
+    start_block: 0
     contracts:
       - name: MyToken
         address: 0x...
