@@ -328,33 +328,43 @@ it("creates entity on event", async () => {
 
 See `references/testing.md` for complete patterns.
 
-## Querying Data
+## Querying Data Locally
 
-Access indexed data via GraphQL at `http://localhost:8080`:
+When running `pnpm dev`, query indexed data via GraphQL at `http://localhost:8080/v1/graphql`.
 
-```graphql
-query {
-  Transfer(where: { from: { _eq: "0x123..." } }, limit: 100) {
-    id
-    from
-    to
-    amount
-  }
-}
+**Check indexing progress first** (always do this before assuming data is missing):
+
+```bash
+curl -s http://localhost:8080/v1/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ _meta { chainId startBlock progressBlock sourceBlock eventsProcessed isReady } }"}'
 ```
 
-Check indexing progress with `_meta`:
-```graphql
-{
-  _meta {
-    chainId
-    progressBlock
-    isReady
-  }
-}
+- `progressBlock` - Current processed block
+- `sourceBlock` - Latest block on chain (target)
+- `isReady` - `true` when fully synced
+
+**Query entities:**
+
+```bash
+curl -s http://localhost:8080/v1/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ Transfer(limit: 10, order_by: {blockNumber: desc}) { id chainId from to amount blockNumber } }"}'
 ```
 
-See `references/graphql-querying.md` for query patterns.
+**Filter by chain (multichain):**
+
+```bash
+curl -s http://localhost:8080/v1/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ Transfer(where: {chainId: {_eq: 42161}}, limit: 10) { id from to amount } }"}'
+```
+
+**Common filter operators:** `_eq`, `_neq`, `_gt`, `_gte`, `_lt`, `_lte`, `_in`, `_like`
+
+**Tip:** BigInt values must be quoted strings in filters: `{amount: {_gt: "1000000000000000000"}}`
+
+See `references/local-querying.md` for comprehensive query patterns, pagination, and debugging tips.
 
 ## Database Indexes
 
@@ -395,7 +405,7 @@ For detailed patterns and advanced techniques, consult:
 - **`references/rpc-data-source.md`** - RPC config and fallback
 
 **Operations:**
-- **`references/graphql-querying.md`** - Hasura console and query patterns
+- **`references/graphql-querying.md`** - Query indexed data, check progress, debug
 - **`references/database-indexes.md`** - Index optimization
 - **`references/testing.md`** - MockDb and test patterns
 
