@@ -225,17 +225,34 @@ import { BigDecimal } from "generated";
 const ZERO_BD = new BigDecimal(0);
 ```
 
-## Debugging
+## Logging & Debugging
 
-Run with visible output:
+**Logging in handlers:**
+```typescript
+context.log.debug("Detailed info");
+context.log.info("Processing transfer", { from, to, value });
+context.log.warn("Large transfer detected");
+context.log.error("Failed to process", { error, txHash });
+```
+
+**Run with visible output:**
 ```bash
 TUI_OFF=true pnpm dev
 ```
 
-Check for common issues:
+**Log levels via env vars:**
+```bash
+LOG_LEVEL="debug"     # Show debug logs (default: "info")
+LOG_LEVEL="trace"     # Most verbose
+```
+
+**Common issues checklist:**
 - Missing `await` on `context.Entity.get()`
 - Wrong field names (check generated types)
 - Missing `field_selection` for transaction data
+- Logs not appearing? They're skipped during preload phase
+
+See `references/logging-debugging.md` for structured logging, log strategies, and troubleshooting patterns.
 
 ## Block Handlers
 
@@ -387,6 +404,56 @@ type Swap @index(fields: ["pair", "timestamp"]) {
 
 See `references/database-indexes.md` for optimization tips.
 
+## Preload Optimization
+
+> **Important:** Handlers run TWICE when `preload_handlers: true` (default since v2.27).
+
+This flagship feature reduces database roundtrips from thousands to single digits:
+
+```typescript
+// Phase 1 (Preload): All handlers run concurrently, reads are batched
+// Phase 2 (Execution): Handlers run sequentially, reads come from cache
+MyContract.Event.handler(async ({ event, context }) => {
+  // Use Promise.all for concurrent reads
+  const [sender, receiver] = await Promise.all([
+    context.Account.get(event.params.from),
+    context.Account.get(event.params.to),
+  ]);
+
+  // Skip non-essential logic during preload
+  if (context.isPreload) return;
+
+  // Actual processing (only runs in execution phase)
+  context.Transfer.set({ ... });
+});
+```
+
+**Critical rule:** Never call `fetch()` or external APIs directly. Use the Effect API.
+
+See `references/preload-optimization.md` for the full mental model and best practices.
+
+## Production Deployment
+
+Deploy to Envio's hosted service for production-ready infrastructure:
+
+```yaml
+# Production config
+name: my-indexer
+rollback_on_reorg: true  # Always enable for production
+networks:
+  - id: 1
+    start_block: 18000000
+    confirmed_block_threshold: 250  # Reorg protection
+```
+
+**Pre-deployment checklist:**
+1. `pnpm codegen` - Generate types
+2. `pnpm tsc --noEmit` - Type check
+3. `TUI_OFF=true pnpm dev` - Test locally with visible logs
+4. Push to GitHub → Auto-deploy via Envio Hosted Service
+
+See `references/deployment.md` for hosted service setup and `references/reorg-support.md` for chain reorganization handling.
+
 ## Additional Resources
 
 ### Reference Files
@@ -397,17 +464,24 @@ For detailed patterns and advanced techniques, consult:
 - **`references/config-options.md`** - Complete config.yaml options
 - **`references/effect-api.md`** - External calls and RPC patterns
 - **`references/entity-patterns.md`** - Entity relationships and updates
+- **`references/preload-optimization.md`** - How preload works, common footguns
 
 **Advanced Features:**
 - **`references/block-handlers.md`** - Block-level indexing with intervals
 - **`references/multichain-indexing.md`** - Ordered vs unordered mode
 - **`references/wildcard-indexing.md`** - Topic filtering, dynamic contracts
+- **`references/contract-state.md`** - Read on-chain state via RPC/viem
 - **`references/rpc-data-source.md`** - RPC config and fallback
 
 **Operations:**
+- **`references/logging-debugging.md`** - Logging, TUI, troubleshooting
 - **`references/graphql-querying.md`** - Query indexed data, check progress, debug
 - **`references/database-indexes.md`** - Index optimization
 - **`references/testing.md`** - MockDb and test patterns
+
+**Production:**
+- **`references/deployment.md`** - Hosted service deployment
+- **`references/reorg-support.md`** - Chain reorganization handling
 
 ### Example Files
 
