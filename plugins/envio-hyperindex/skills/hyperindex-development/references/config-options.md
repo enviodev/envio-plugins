@@ -25,12 +25,29 @@ networks:
 
 ## Network Configuration
 
+### start_block
+
+The `start_block` field specifies where indexing begins.
+
+**With HyperSync (default):** Setting `start_block: 0` is perfectly fine. HyperSync is extremely fast and can sync millions of blocks in minutes, so there's no performance penalty for starting from genesis.
+
+**With RPC:** If using RPC as the data source (for unsupported networks), consider setting `start_block` to the contract deployment block to avoid slow sync times.
+
+```yaml
+networks:
+  - id: 1
+    start_block: 0  # Fine with HyperSync - it's fast!
+    contracts:
+      - name: MyContract
+        address: 0xContractAddress
+```
+
 ### Single Network
 
 ```yaml
 networks:
   - id: 1
-    start_block: 12345678
+    start_block: 0
     contracts:
       - name: MyContract
         address: 0xContractAddress
