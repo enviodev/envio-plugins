@@ -107,4 +107,4 @@ We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guideline
 
 ## License
 
-MIT License - see [LICENSE](./LICENSE) for details.
+Source Available - see [LICENSE](./LICENSE) for details.
