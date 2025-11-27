@@ -10,37 +10,40 @@ Official plugin marketplace for Envio's Claude Code plugins. These plugins enhan
 
 ## Installation
 
-### Quick Install (Recommended)
+### Add the Marketplace
 
-Add the entire marketplace to Claude Code:
+Add this marketplace to Claude Code:
 
 ```bash
-claude plugins add https://github.com/enviodev/envio-plugins
+/plugin marketplace add enviodev/envio-plugins
 ```
 
-This gives you access to all Envio plugins.
+This makes all Envio plugins available for installation.
 
-### Install Individual Plugin
+### Install a Plugin
 
-To install a specific plugin only:
+Once the marketplace is added, install plugins:
 
 ```bash
-claude plugins add https://github.com/enviodev/envio-plugins/plugins/envio-hyperindex
+/plugin install envio-hyperindex@envio-plugins
+```
+
+Or browse interactively:
+
+```bash
+/plugin
 ```
 
 ### Local Development
 
-Clone and symlink for local development:
+Clone and add locally for development:
 
 ```bash
 git clone https://github.com/enviodev/envio-plugins.git
 cd envio-plugins
 
-# Symlink entire marketplace
-ln -s $(pwd) ~/.claude/plugins/envio-plugins
-
-# Or symlink individual plugin
-ln -s $(pwd)/plugins/envio-hyperindex ~/.claude/plugins/envio-hyperindex
+# Add local marketplace
+/plugin marketplace add ./envio-plugins
 ```
 
 ## Usage
@@ -69,22 +72,23 @@ Once installed, plugins activate automatically based on context. For example:
 |-------|---------|
 | HyperIndex Helper | Debug indexers, explain patterns, review code |
 
-## Plugin Structure
-
-Each plugin follows the Claude Code plugin specification:
+## Marketplace Structure
 
 ```
-plugins/
-└── plugin-name/
-    ├── .claude-plugin/
-    │   └── plugin.json      # Plugin manifest
-    ├── skills/              # Context-aware knowledge
-    │   └── skill-name/
-    │       ├── SKILL.md
-    │       └── references/
-    ├── commands/            # Slash commands
-    ├── agents/              # Specialized agents
-    └── README.md
+envio-plugins/
+├── .claude-plugin/
+│   └── marketplace.json    # Marketplace registry
+├── plugins/
+│   └── envio-hyperindex/   # Individual plugin
+│       ├── .claude-plugin/
+│       │   └── plugin.json
+│       ├── skills/
+│       ├── commands/
+│       ├── agents/
+│       └── README.md
+├── README.md
+├── CONTRIBUTING.md
+└── LICENSE
 ```
 
 ## Contributing

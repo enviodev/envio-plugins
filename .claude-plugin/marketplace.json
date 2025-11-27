@@ -1,0 +1,26 @@
+{
+  "name": "envio-plugins",
+  "owner": {
+    "name": "Envio",
+    "email": "support@envio.dev"
+  },
+  "metadata": {
+    "description": "Official Envio Claude Code plugin marketplace for blockchain indexer development",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "envio-hyperindex",
+      "source": "./plugins/envio-hyperindex",
+      "description": "HyperIndex blockchain indexer development - event handlers, schema design, multichain indexing",
+      "version": "1.0.0",
+      "author": {
+        "name": "Envio"
+      },
+      "homepage": "https://docs.envio.dev",
+      "repository": "https://github.com/enviodev/envio-plugins",
+      "keywords": ["blockchain", "indexer", "hyperindex", "web3", "graphql", "envio"],
+      "category": "blockchain"
+    }
+  ]
+}
