@@ -1,0 +1,22 @@
+{
+  "name": "envio-hyperindex",
+  "version": "1.0.0",
+  "description": "Claude Code plugin for Envio HyperIndex development - teaches best practices for building blockchain indexers and migrating from TheGraph subgraphs",
+  "author": {
+    "name": "Envio",
+    "url": "https://envio.dev"
+  },
+  "homepage": "https://docs.envio.dev",
+  "repository": "https://github.com/enviodev/hyperindex",
+  "license": "MIT",
+  "keywords": [
+    "envio",
+    "hyperindex",
+    "blockchain",
+    "indexer",
+    "ethereum",
+    "graphql",
+    "subgraph",
+    "migration"
+  ]
+}

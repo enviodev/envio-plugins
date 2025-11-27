@@ -1,0 +1,18 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Node (if any tooling is added)
+node_modules/
+*.log
+
+# Local development
+.env
+.env.local
+*.local.md
